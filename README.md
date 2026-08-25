@@ -1,8 +1,6 @@
 # YOLO-World + MobileSAM on RK3588
 
-![YOLO-World and MobileSAM running across three RK3588 NPU cores](docs/assets/readme-hero.png)
-
-*概念封面，不是真实摄像头截图；真机数字和可复现条件见下方性能记录。*
+![readme-hero](E:\workspace\yolo-world-mobilesam-rk3588\docs\assets\readme-hero.png)
 
 在 RK3588 / 鲁班猫 4 上，用运行时文本提示完成 `目标名称 -> bbox -> mask` 的实时定位。项目常驻加载 CLIP Text、YOLO-World V2-S 和 MobileSAM 四个 RKNN 模型；修改提示词时无需重启或重载模型，并利用三核 NPU 并行提高完整检测与分割链路的帧率。
 
@@ -22,15 +20,15 @@
 
 ## 已验证环境
 
-| 项目 | 已验证值 |
-| --- | --- |
-| 开发板 | 鲁班猫 4 / RK3588 系列 NPU |
-| RKNNLite / Runtime | 2.3.2 |
-| RKNPU Driver | 0.9.8 |
-| 摄像头 | V4L2，实测节点 `/dev/video11` |
-| 默认检测模型 | YOLO-World V2-S I8 |
-| 默认调度 | `three-core` |
-| 板端测试 | 27/27 通过 |
+| 项目                 | 已验证值                     |
+| ------------------ | ------------------------ |
+| 开发板                | 鲁班猫 4 / RK3588 系列 NPU    |
+| RKNNLite / Runtime | 2.3.2                    |
+| RKNPU Driver       | 0.9.8                    |
+| 摄像头                | V4L2，实测节点 `/dev/video11` |
+| 默认检测模型             | YOLO-World V2-S I8       |
+| 默认调度               | `three-core`             |
+| 板端测试               | 27/27 通过                 |
 
 这些值记录的是一次已完成的真机验证，不代表所有固件、摄像头和 RKNN SDK 组合都兼容。部署到其他系统时，应让 RKNNLite Python wheel、Runtime 和驱动版本相互匹配。
 
@@ -111,10 +109,10 @@ Encoder 与 YOLO 在同一帧并行；Decoder 依赖 YOLO bbox，所以只能在
 
 2026-08-25，在上述已验证环境中，以同一图片、`cup`、5 次预热、50 次完整 YOLO + MobileSAM 推理测试：
 
-| 模式 | 平均总耗时 | P50 | P90 | wall FPS |
-| --- | ---: | ---: | ---: | ---: |
-| `serial-auto` | 206.62 ms | 188.85 ms | 229.96 ms | 4.83 |
-| `three-core` | 134.64 ms | 133.28 ms | 142.79 ms | 7.42 |
+| 模式            | 平均总耗时     | P50       | P90       | wall FPS |
+| ------------- | ---------:| ---------:| ---------:| --------:|
+| `serial-auto` | 206.62 ms | 188.85 ms | 229.96 ms | 4.83     |
+| `three-core`  | 134.64 ms | 133.28 ms | 142.79 ms | 7.42     |
 
 三核模式静态吞吐提高约 53.5%，两种模式的 bbox、confidence 和 mask SHA-256 完全一致。真实摄像头完整检测+分割各运行 30 帧时，界面状态约从 4.75 FPS 提高到 6.40 FPS，均无推理错误。摄像头结果包含采集、绘制和线程调度，只代表该板、该场景和当时系统状态。原始的脱敏基准数据与方法见 [性能记录](docs/BENCHMARKS.md)。
 
