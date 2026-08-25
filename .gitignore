@@ -1,0 +1,66 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# RKNN/ML artifacts: obtain or convert these separately
+*.rknn
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.engine
+*.tflite
+*.bin
+*.so
+*.dll
+*.dylib
+
+# Native build products
+build/
+dist/
+cmake-build-*/
+*.o
+*.obj
+*.a
+*.lib
+*.exe
+
+# Runtime inputs and outputs
+data/*
+!data/README.md
+model/*
+!model/README.md
+results/
+output/
+outputs/
+logs/
+*.log
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.h264
+*.h265
+capture*.jpg
+snapshot*.jpg
+last*.jpg

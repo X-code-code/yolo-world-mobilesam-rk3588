@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="620" viewBox="0 0 1400 620" role="img" aria-labelledby="title desc">
+  <title id="title">YOLO-World to MobileSAM runtime pipeline</title>
+  <desc id="desc">A target prompt is encoded by CLIP, a camera frame is processed in parallel by YOLO-World and the MobileSAM encoder, and the resulting bounding box and image embedding feed the MobileSAM decoder.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="1" stop-color="#0c1c31"/>
+    </linearGradient>
+    <linearGradient id="result" x1="0" x2="1">
+      <stop offset="0" stop-color="#a3e635" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0.28"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#61d9ff"/>
+    </marker>
+    <style>
+      .title{font:700 28px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#f8fafc}
+      .subtitle{font:500 15px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#94a3b8}
+      .label{font:700 18px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#f8fafc}
+      .small{font:500 14px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#a8b7cc}
+      .core{font:700 12px system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.08em;fill:#06111f}
+      .flow{fill:none;stroke:#61d9ff;stroke-width:4;marker-end:url(#arrow)}
+      .soft-flow{fill:none;stroke:#61d9ff;stroke-width:3;stroke-opacity:.70;marker-end:url(#arrow)}
+      .card{fill:#101f34;stroke:#2c4665;stroke-width:2}
+    </style>
+  </defs>
+
+  <rect width="1400" height="620" rx="28" fill="url(#bg)"/>
+  <circle cx="1320" cy="66" r="140" fill="#22d3ee" opacity=".035"/>
+  <circle cx="90" cy="590" r="190" fill="#8b5cf6" opacity=".045"/>
+
+  <text x="54" y="55" class="title">Runtime text prompt → bounding box → target mask</text>
+  <text x="54" y="82" class="subtitle">Four persistent RKNN contexts · prompt embedding cache · same-frame NPU parallelism</text>
+
+  <rect x="54" y="122" width="250" height="118" rx="18" class="card"/>
+  <rect x="54" y="122" width="8" height="118" rx="4" fill="#a78bfa"/>
+  <text x="82" y="164" class="label">Target prompt</text>
+  <text x="82" y="193" class="small">UTF-8 · normalized</text>
+  <text x="82" y="216" class="small">“cup”, “bottle”, …</text>
+
+  <rect x="54" y="402" width="250" height="118" rx="18" class="card"/>
+  <rect x="54" y="402" width="8" height="118" rx="4" fill="#38bdf8"/>
+  <text x="82" y="444" class="label">Camera frame</text>
+  <text x="82" y="473" class="small">BGR · latest-frame slot</text>
+  <text x="82" y="496" class="small">640 × 480 requested</text>
+
+  <rect x="374" y="122" width="250" height="118" rx="18" class="card"/>
+  <rect x="392" y="142" width="70" height="22" rx="11" fill="#a78bfa"/>
+  <text x="405" y="158" class="core">CORE 1</text>
+  <text x="392" y="194" class="label">CLIP Text</text>
+  <text x="392" y="220" class="small">20 tokens → 512-d embedding</text>
+
+  <rect x="700" y="244" width="250" height="128" rx="18" class="card"/>
+  <rect x="718" y="264" width="70" height="22" rx="11" fill="#22d3ee"/>
+  <text x="731" y="280" class="core">CORE 2</text>
+  <text x="718" y="316" class="label">YOLO-World V2-S</text>
+  <text x="718" y="342" class="small">640 letterbox · DFL · NMS</text>
+
+  <rect x="374" y="402" width="250" height="118" rx="18" class="card"/>
+  <rect x="392" y="422" width="70" height="22" rx="11" fill="#a3e635"/>
+  <text x="405" y="438" class="core">CORE 0</text>
+  <text x="392" y="474" class="label">MobileSAM Encoder</text>
+  <text x="392" y="500" class="small">448 pad → image embedding</text>
+
+  <rect x="1030" y="284" width="235" height="146" rx="18" class="card"/>
+  <rect x="1048" y="304" width="70" height="22" rx="11" fill="#a78bfa"/>
+  <text x="1061" y="320" class="core">CORE 1</text>
+  <text x="1048" y="356" class="label">MobileSAM Decoder</text>
+  <text x="1048" y="382" class="small">bbox prompt + image embedding</text>
+  <text x="1048" y="405" class="small">112 logits → original size</text>
+
+  <rect x="1300" y="304" width="72" height="108" rx="18" fill="url(#result)" stroke="#a3e635" stroke-width="2"/>
+  <path d="M1321 380 C1312 360 1318 334 1341 329 C1362 336 1367 360 1355 379 C1347 392 1332 394 1321 380 Z" fill="#a3e635" fill-opacity=".58" stroke="#d9f99d" stroke-width="2"/>
+  <text x="1308" y="441" class="small">mask</text>
+
+  <path d="M304 181 H374" class="flow"/>
+  <path d="M624 181 H664 Q686 181 686 205 V260" class="flow"/>
+  <text x="640" y="159" class="small">text embedding</text>
+  <path d="M304 448 H332 Q350 448 350 430 V334 Q350 308 378 308 H700" class="soft-flow"/>
+  <path d="M304 474 H374" class="flow"/>
+  <path d="M950 308 H1030" class="flow"/>
+  <text x="970" y="290" class="small">bbox</text>
+  <path d="M624 474 H972 Q1000 474 1000 446 V392 H1030" class="flow"/>
+  <text x="768" y="497" class="small">per-frame image embedding</text>
+  <path d="M1265 357 H1300" class="flow"/>
+
+  <rect x="344" y="226" width="628" height="316" rx="26" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="8 8" opacity=".46"/>
+  <rect x="646" y="528" width="240" height="30" rx="15" fill="#0c2942" stroke="#256c95"/>
+  <text x="675" y="549" class="small" fill="#7dd3fc">same-frame parallel region</text>
+</svg>

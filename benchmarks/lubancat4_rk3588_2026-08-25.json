@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-25",
+  "hardware": {
+    "board": "LubanCat 4",
+    "soc_family": "RK3588",
+    "camera_device": "/dev/video11"
+  },
+  "software": {
+    "rknnlite_version": "2.3.2",
+    "rknn_runtime_version": "2.3.2",
+    "rknpu_driver_version": "0.9.8"
+  },
+  "workload": {
+    "image": "data/test.jpg (not distributed)",
+    "target": "cup",
+    "warmup": 5,
+    "runs_per_mode": 50,
+    "sam_enabled": true,
+    "models": {
+      "clip": "model/clip_text_fp16.rknn",
+      "yolo": "model/yolo_world_v2s_i8.rknn",
+      "sam_encoder": "model/mobilesam_encoder_fp16.rknn",
+      "sam_decoder": "model/mobilesam_decoder_fp16.rknn"
+    }
+  },
+  "modes": {
+    "serial-auto": {
+      "runs": 50,
+      "total": {
+        "mean_ms": 206.62356093976996,
+        "p50_ms": 188.84597649957868,
+        "p90_ms": 229.9627437001618
+      },
+      "parallel": {
+        "mean_ms": 0.0,
+        "p50_ms": 0.0,
+        "p90_ms": 0.0
+      },
+      "yolo": {
+        "mean_ms": 63.461503659927985,
+        "p50_ms": 59.23579999944195,
+        "p90_ms": 70.9648100018967
+      },
+      "encoder": {
+        "mean_ms": 120.93544909992488,
+        "p50_ms": 112.47423099848675,
+        "p90_ms": 130.68009900089237
+      },
+      "decoder": {
+        "mean_ms": 16.283171979448525,
+        "p50_ms": 13.182080005208263,
+        "p90_ms": 20.018813099886756
+      },
+      "fps": 4.839719127149766,
+      "wall_fps": 4.832192045469785,
+      "confidence": 0.9475963711738586,
+      "bbox": [0, 70, 92, 228],
+      "mask_iou": 0.98193359375,
+      "mask_pixels": 11534,
+      "mask_sha256": "c8a28207e28dcb1e665e346d72101370bab585f9d7d481145af9954cfc2c8f95",
+      "within_mode_consistent": true
+    },
+    "three-core": {
+      "runs": 50,
+      "total": {
+        "mean_ms": 134.63638192013605,
+        "p50_ms": 133.28216050285846,
+        "p90_ms": 142.79453799827024
+      },
+      "parallel": {
+        "mean_ms": 118.90369679924333,
+        "p50_ms": 118.7287020002259,
+        "p90_ms": 119.74641399792745
+      },
+      "yolo": {
+        "mean_ms": 66.20696683952701,
+        "p50_ms": 63.51107599766692,
+        "p90_ms": 79.87891070079058
+      },
+      "encoder": {
+        "mean_ms": 117.78218310020748,
+        "p50_ms": 117.72131349789561,
+        "p90_ms": 118.22238280437887
+      },
+      "decoder": {
+        "mean_ms": 14.32601704087574,
+        "p50_ms": 13.33272200281499,
+        "p90_ms": 21.32526820496423
+      },
+      "fps": 7.427412900869414,
+      "wall_fps": 7.4151611712097,
+      "confidence": 0.9475963711738586,
+      "bbox": [0, 70, 92, 228],
+      "mask_iou": 0.98193359375,
+      "mask_pixels": 11534,
+      "mask_sha256": "c8a28207e28dcb1e665e346d72101370bab585f9d7d481145af9954cfc2c8f95",
+      "within_mode_consistent": true
+    }
+  },
+  "result_consistency": {
+    "serial_auto_within_mode": true,
+    "three_core_within_mode": true,
+    "three_core_matches_serial_auto": true,
+    "all_results_consistent": true,
+    "float_tolerance": 1e-06
+  },
+  "live_camera": {
+    "results_per_mode": 30,
+    "serial_auto_inference_fps_ema": 4.753,
+    "three_core_inference_fps_ema": 6.403,
+    "serial_auto_inference_errors": 0,
+    "three_core_inference_errors": 0,
+    "note": "End-to-end UI status values include capture, drawing and scheduling; source frames are not distributed."
+  }
+}

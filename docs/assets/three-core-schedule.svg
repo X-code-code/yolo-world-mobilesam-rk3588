@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="460" viewBox="0 0 1200 460" role="img" aria-labelledby="title desc">
+  <title id="title">Measured three-core RK3588 scheduling timeline</title>
+  <desc id="desc">MobileSAM encoder runs on core zero while YOLO-World runs on core two. After both complete, the MobileSAM decoder runs on core one.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="1" stop-color="#10243b"/>
+    </linearGradient>
+    <style>
+      .title{font:700 26px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#f8fafc}
+      .sub{font:500 14px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#94a3b8}
+      .row{font:700 16px ui-monospace,SFMono-Regular,Consolas,monospace;fill:#dbeafe}
+      .bar{font:700 15px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#07111f}
+      .tick{font:500 12px ui-monospace,SFMono-Regular,Consolas,monospace;fill:#8292a9}
+      .grid{stroke:#29415e;stroke-width:1;stroke-dasharray:4 7}
+    </style>
+  </defs>
+  <rect width="1200" height="460" rx="26" fill="url(#bg)"/>
+  <text x="42" y="50" class="title">Three-core steady-state schedule</text>
+  <text x="42" y="76" class="sub">Measured means · I8 YOLO + FP16 MobileSAM · cached prompt · total 134.64 ms</text>
+
+  <g transform="translate(190 108)">
+    <line x1="0" y1="0" x2="900" y2="0" stroke="#49637f" stroke-width="2"/>
+    <g class="grid">
+      <line x1="0" y1="0" x2="0" y2="270"/>
+      <line x1="200" y1="0" x2="200" y2="270"/>
+      <line x1="400" y1="0" x2="400" y2="270"/>
+      <line x1="600" y1="0" x2="600" y2="270"/>
+      <line x1="800" y1="0" x2="800" y2="270"/>
+      <line x1="900" y1="0" x2="900" y2="270"/>
+    </g>
+    <text x="-5" y="-12" class="tick">0</text>
+    <text x="185" y="-12" class="tick">30</text>
+    <text x="385" y="-12" class="tick">60</text>
+    <text x="585" y="-12" class="tick">90</text>
+    <text x="778" y="-12" class="tick">120</text>
+    <text x="872" y="-12" class="tick">135 ms</text>
+
+    <text x="-150" y="59" class="row">NPU core 0</text>
+    <rect x="10" y="28" width="785" height="48" rx="12" fill="#a3e635"/>
+    <text x="32" y="58" class="bar">MobileSAM Encoder · 117.78 ms</text>
+
+    <text x="-150" y="147" class="row">NPU core 1</text>
+    <circle cx="14" cy="132" r="8" fill="#a78bfa"/>
+    <text x="31" y="137" class="sub">CLIP cache hit · 0 ms</text>
+    <rect x="797" y="108" width="95" height="48" rx="12" fill="#a78bfa"/>
+    <text x="812" y="129" class="bar">SAM</text>
+    <text x="809" y="147" class="bar">Decoder</text>
+
+    <text x="-150" y="235" class="row">NPU core 2</text>
+    <rect x="10" y="204" width="441" height="48" rx="12" fill="#22d3ee"/>
+    <text x="32" y="234" class="bar">YOLO-World · 66.21 ms</text>
+
+    <path d="M451 197 V176 H795 V165" fill="none" stroke="#61d9ff" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <path d="M795 76 V108" fill="none" stroke="#a3e635" stroke-width="2.5"/>
+    <text x="493" y="191" class="sub">bbox + image embedding dependency</text>
+  </g>
+
+  <rect x="200" y="396" width="785" height="28" rx="14" fill="#12314b" stroke="#256c95"/>
+  <text x="444" y="416" class="sub" fill="#7dd3fc">parallel region mean: 118.90 ms</text>
+  <text x="42" y="445" class="sub">A new prompt adds CLIP Text work on core 1 before YOLO starts; repeated prompts reuse the embedding.</text>
+</svg>

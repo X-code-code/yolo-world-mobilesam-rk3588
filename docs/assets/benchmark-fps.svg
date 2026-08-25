@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640" role="img" aria-labelledby="title desc">
+  <title id="title">Serial versus three-core FPS benchmark</title>
+  <desc id="desc">Three-core scheduling improves static wall FPS from 4.83 to 7.42 and live inference FPS from 4.75 to 6.40.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="1" stop-color="#10243b"/>
+    </linearGradient>
+    <linearGradient id="three" x1="0" x2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#a3e635"/>
+    </linearGradient>
+    <style>
+      .title{font:700 28px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#f8fafc}
+      .sub{font:500 14px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#94a3b8}
+      .group{font:700 18px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#e2e8f0}
+      .series{font:600 14px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#b7c4d7}
+      .value{font:800 20px ui-monospace,SFMono-Regular,Consolas,monospace;fill:#f8fafc}
+      .tick{font:500 12px ui-monospace,SFMono-Regular,Consolas,monospace;fill:#8292a9}
+      .grid{stroke:#2b435f;stroke-width:1;stroke-dasharray:4 7}
+    </style>
+  </defs>
+  <rect width="1100" height="640" rx="26" fill="url(#bg)"/>
+  <text x="46" y="55" class="title">Complete detection + segmentation throughput</text>
+  <text x="46" y="82" class="sub">LubanCat 4 · RKNNLite/Runtime 2.3.2 · Driver 0.9.8 · 2026-08-25</text>
+
+  <g transform="translate(260 120)">
+    <g class="grid">
+      <line x1="0" y1="0" x2="0" y2="420"/>
+      <line x1="180" y1="0" x2="180" y2="420"/>
+      <line x1="360" y1="0" x2="360" y2="420"/>
+      <line x1="540" y1="0" x2="540" y2="420"/>
+      <line x1="720" y1="0" x2="720" y2="420"/>
+    </g>
+    <text x="-3" y="442" class="tick">0</text>
+    <text x="175" y="442" class="tick">2</text>
+    <text x="355" y="442" class="tick">4</text>
+    <text x="535" y="442" class="tick">6</text>
+    <text x="706" y="442" class="tick">8 FPS</text>
+
+    <text x="-214" y="40" class="group">Static image</text>
+    <text x="-214" y="62" class="sub">50 measured runs</text>
+    <text x="-92" y="111" class="series">serial</text>
+    <rect x="0" y="83" width="435" height="42" rx="10" fill="#53647a"/>
+    <text x="450" y="111" class="value">4.83</text>
+    <text x="-109" y="169" class="series">3-core</text>
+    <rect x="0" y="141" width="668" height="42" rx="10" fill="url(#three)"/>
+    <text x="683" y="169" class="value">7.42</text>
+
+    <line x1="-214" y1="218" x2="760" y2="218" stroke="#29415e"/>
+
+    <text x="-214" y="260" class="group">Live camera UI</text>
+    <text x="-214" y="282" class="sub">30 published results</text>
+    <text x="-92" y="329" class="series">serial</text>
+    <rect x="0" y="301" width="428" height="42" rx="10" fill="#53647a"/>
+    <text x="443" y="329" class="value">4.75</text>
+    <text x="-109" y="387" class="series">3-core</text>
+    <rect x="0" y="359" width="576" height="42" rx="10" fill="url(#three)"/>
+    <text x="591" y="387" class="value">6.40</text>
+  </g>
+
+  <rect x="830" y="33" width="220" height="62" rx="17" fill="#17344a" stroke="#32c5e6"/>
+  <text x="852" y="59" class="sub" fill="#a5f3fc">STATIC WALL FPS</text>
+  <text x="852" y="83" class="value" fill="#bef264">+53.5%</text>
+  <text x="46" y="610" class="sub">Static bars use wall FPS. Live bars are inference-result EMA and include capture, drawing and scheduling overhead.</text>
+</svg>
