@@ -35,15 +35,21 @@ cat /sys/kernel/debug/rknpu/version 2>/dev/null || true
 
 ```bash
 cd /home/cat
-git clone <YOUR_GITHUB_REPOSITORY_URL> yolo-world-mobilesam-rk3588
+git clone https://github.com/X-code-code/yolo-world-mobilesam-rk3588.git
 cd yolo-world-mobilesam-rk3588
 ```
 
 也可以在电脑下载后复制到板端。连接别名按本项目环境使用 `ssh lubancat`。
 
-## 3. 放置模型
+## 3. 获取并放置模型
 
-模型不在 Git 仓库中。把文件复制到：
+模型二进制不在普通 Git 历史中。先下载 GitHub Release 里许可明确的两个 MobileSAM RKNN，并自动验证 ZIP 和模型的 SHA-256：
+
+```bash
+python3 scripts/download_models.py
+```
+
+动态提示词检测还需要 CLIP 与 YOLO。按照 [模型与转换说明](MODELS.md) 使用 `conversion/download_onnx.py` 和 `conversion/convert_models.py` 从官方 ONNX 本地生成；完整运行目录应为：
 
 ```text
 model/clip_text_fp16.rknn
@@ -53,20 +59,20 @@ model/mobilesam_encoder_fp16.rknn
 model/mobilesam_decoder_fp16.rknn
 ```
 
-从 Windows 复制的示例：
+如果电脑或既有板端部署目录已经有全部五个已核验模型，也可以从 Windows 复制：
 
 ```powershell
 scp .\model\*.rknn lubancat:/home/cat/yolo-world-mobilesam-rk3588/model/
 ```
 
-板端验证本次已测模型的 SHA-256：
+板端验证本次已测五件套的 SHA-256：
 
 ```bash
 cd /home/cat/yolo-world-mobilesam-rk3588
 sha256sum -c MODEL_SHA256SUMS
 ```
 
-如果只放置默认运行所需的四个模型，`sha256sum` 会把缺少的 FP16 YOLO 报为失败；可改为单独核对已有文件。不同 RKNN Toolkit 版本重新转换出的文件可能具有不同 hash，不能仅因 hash 不同就判定模型错误，还应记录转换版本并做功能验证。
+如果只放置默认运行所需的四个模型，`sha256sum` 会把缺少的 FP16 YOLO 报为失败；可改为单独核对已有文件。`python3 scripts/download_models.py --verify-only` 只核对当前 Release 提供的两个 MobileSAM 文件。不同 RKNN Toolkit 版本重新转换出的文件可能具有不同 hash，不能仅因 hash 不同就判定模型错误，还应保留 `conversion-record.json` 并做功能验证。
 
 模型来源、转换命令、大小与校验值见 [模型说明](MODELS.md)。
 

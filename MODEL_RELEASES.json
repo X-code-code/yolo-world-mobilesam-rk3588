@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "repository": "X-code-code/yolo-world-mobilesam-rk3588",
+  "release": {
+    "tag": "v0.1.0",
+    "download_base_url": "https://github.com/X-code-code/yolo-world-mobilesam-rk3588/releases/download/v0.1.0",
+    "bundles": {
+      "mobilesam-rk3588-fp16": {
+        "asset": "mobilesam-rk3588-fp16-v0.1.0.zip",
+        "bytes": 49833372,
+        "sha256": "6b979c5e12201e141197fab62633f160d3708a3d4aa5a03868fa916edc5a9685",
+        "archive_root": "mobilesam-rk3588-fp16-v0.1.0"
+      }
+    }
+  },
+  "models": {
+    "clip_text_fp16.rknn": {
+      "bytes": 129536946,
+      "sha256": "872765bb5f9813d96d57888d97ab3599270264aeeead2a97e505bffbed466563",
+      "required_for": [
+        "dynamic text prompts"
+      ],
+      "distribution": {
+        "status": "convert_locally",
+        "reason": "The source CLIP model card does not state an explicit weight redistribution license. The OpenAI CLIP MIT license clearly covers the repository code but is not treated here as permission to redistribute this converted weight artifact.",
+        "instructions": "conversion/README.md"
+      }
+    },
+    "yolo_world_v2s_i8.rknn": {
+      "bytes": 15327930,
+      "sha256": "c2af5058828ff62f39910d1f84284df5644ec46c05317aec54fa5235b04fa61a",
+      "required_for": [
+        "default object detection"
+      ],
+      "distribution": {
+        "status": "convert_locally",
+        "reason": "The YOLO-World adaptation is GPL-3.0. A public binary distribution needs a complete corresponding-source bundle; this release does not claim to provide that bundle.",
+        "instructions": "conversion/README.md"
+      }
+    },
+    "yolo_world_v2s_fp16.rknn": {
+      "bytes": 27844050,
+      "sha256": "bc03e95b31b9bd73ce308a981e76b97b3c7cd11cdd44955671fd594477965fc7",
+      "required_for": [
+        "optional accuracy comparison"
+      ],
+      "distribution": {
+        "status": "convert_locally",
+        "reason": "The YOLO-World adaptation is GPL-3.0. A public binary distribution needs a complete corresponding-source bundle; this release does not claim to provide that bundle.",
+        "instructions": "conversion/README.md"
+      }
+    },
+    "mobilesam_encoder_fp16.rknn": {
+      "bytes": 38544118,
+      "sha256": "d1c3104934967cc488c83471bd645fee783f2609f90f446e1dfaf77e532875d9",
+      "required_for": [
+        "MobileSAM segmentation"
+      ],
+      "distribution": {
+        "status": "release_bundle",
+        "bundle": "mobilesam-rk3588-fp16",
+        "member": "model/mobilesam_encoder_fp16.rknn",
+        "license": "Apache-2.0",
+        "notice": "MODEL_LICENSES.md"
+      }
+    },
+    "mobilesam_decoder_fp16.rknn": {
+      "bytes": 11266702,
+      "sha256": "5f509ea393396ac33cb4c3805492227ca4f6b89c533dcbf6ef5a94808fd89660",
+      "required_for": [
+        "MobileSAM segmentation"
+      ],
+      "distribution": {
+        "status": "release_bundle",
+        "bundle": "mobilesam-rk3588-fp16",
+        "member": "model/mobilesam_decoder_fp16.rknn",
+        "license": "Apache-2.0",
+        "notice": "MODEL_LICENSES.md"
+      }
+    }
+  }
+}

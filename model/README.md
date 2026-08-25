@@ -1,6 +1,12 @@
 # Model directory
 
-Place locally obtained or converted RKNN artifacts here:
+Download the redistributable MobileSAM Release bundle from the repository root:
+
+```bash
+python3 scripts/download_models.py
+```
+
+Then place the locally converted CLIP and YOLO RKNN artifacts here as well:
 
 ```text
 clip_text_fp16.rknn
@@ -10,4 +16,4 @@ mobilesam_encoder_fp16.rknn
 mobilesam_decoder_fp16.rknn
 ```
 
-Model files are ignored by Git and are not covered automatically by the repository's Apache-2.0 license. See [the model guide](../docs/MODELS.md) for sources, conversion commands, expected sizes, verified hashes and licensing boundaries. The hashes are also available in [`MODEL_SHA256SUMS`](../MODEL_SHA256SUMS).
+Model files are ignored by ordinary Git. The two MobileSAM artifacts are distributed in a license-carrying GitHub Release archive; CLIP and YOLO artifacts are not public Release assets in v0.1.0 and must be converted locally. See [the model guide](../docs/MODELS.md), [`MODEL_RELEASES.json`](../MODEL_RELEASES.json), and [`MODEL_SHA256SUMS`](../MODEL_SHA256SUMS).

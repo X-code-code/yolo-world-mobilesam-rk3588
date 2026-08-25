@@ -1,98 +1,123 @@
-# 模型、转换与校验
+# 模型、转换、发布与校验
 
-## 为什么仓库不带模型
+## 先说结论
 
-五个已验证 RKNN 文件合计约 212 MiB，其中 `clip_text_fp16.rknn` 单文件约 123.5 MiB，超过 GitHub 普通 Git 的 100 MiB 单文件限制。更重要的是，模型权重、YOLO-World 许可和 RKNN 工具链条款与本仓库源代码许可不是同一件事。
+这个项目已经有真实上板模型，不只是实现说明。2026-08-25，WSL 转换目录与鲁班猫 4 部署目录中的五个 RKNN 文件逐个 SHA-256 一致；五件套合计约 212.21 MiB，完整 YOLO-World → MobileSAM 链路和三核基准也已在板端运行。
 
-因此 `.gitignore` 明确排除 `.rknn`、`.onnx`、PyTorch 权重和厂商二进制。使用者需要从上游获取 ONNX 并自行转换，或在符合上游许可的前提下从自己的制品存储下载。
+模型二进制不进入普通 Git 历史：`clip_text_fp16.rknn` 单文件约 123.5 MiB，超过 GitHub 普通 Git 100 MiB 限制，而且模型许可与本仓库原创代码的 Apache-2.0 不是同一件事。可公开再分发的模型使用 GitHub Release；其余模型保留来源、转换脚本和已验证 hash，由用户从官方 ONNX 本地生成。
 
-## 运行时文件名
+## v0.1.0 发布范围
 
-| 文件 | 用途 | 精度 | 字节数（已验证制品） | SHA-256 |
-| --- | --- | --- | ---: | --- |
-| `clip_text_fp16.rknn` | 提示词 token 到 512 维 embedding | FP16 | 129,536,946 | `872765bb5f9813d96d57888d97ab3599270264aeeead2a97e505bffbed466563` |
-| `yolo_world_v2s_i8.rknn` | 默认文本条件检测 | I8 | 15,327,930 | `c2af5058828ff62f39910d1f84284df5644ec46c05317aec54fa5235b04fa61a` |
-| `yolo_world_v2s_fp16.rknn` | 检测精度对照，可选 | FP16 | 27,844,050 | `bc03e95b31b9bd73ce308a981e76b97b3c7cd11cdd44955671fd594477965fc7` |
-| `mobilesam_encoder_fp16.rknn` | 每帧 image embedding | FP16 | 38,544,118 | `d1c3104934967cc488c83471bd645fee783f2609f90f446e1dfaf77e532875d9` |
-| `mobilesam_decoder_fp16.rknn` | bbox prompt 到 mask | FP16 | 11,266,702 | `5f509ea393396ac33cb4c3805492227ca4f6b89c533dcbf6ef5a94808fd89660` |
+| 文件 | 运行用途 | 发布方式 | 原因 |
+| --- | --- | --- | --- |
+| `mobilesam_encoder_fp16.rknn` | 每帧 image embedding | Release 压缩包 | MobileSAM 与 Rockchip fork 均为 Apache-2.0 |
+| `mobilesam_decoder_fp16.rknn` | bbox prompt 到 mask | Release 压缩包 | 与许可证、变更说明和 provenance 一起交付 |
+| `clip_text_fp16.rknn` | 提示词到 512 维 embedding | 本地转换 | 官方 CLIP 模型卡未明确声明权重再分发许可 |
+| `yolo_world_v2s_i8.rknn` | 默认文本条件检测 | 本地转换 | GPL-3.0 二进制发布需要完整对应源码包；本版本不冒充已满足 |
+| `yolo_world_v2s_fp16.rknn` | 可选精度对照 | 本地转换 | 同上 |
 
-这些 hash 对应 2026-08-25 已在板端验证的本地制品。转换工具版本、图优化或量化数据变化都可能改变文件 hash。`MODEL_SHA256SUMS` 是制品身份记录，不是所有有效模型的唯一白名单。
-
-默认运行需要 CLIP、I8 YOLO、MobileSAM Encoder 和 Decoder 四个文件。FP16 YOLO 仅在显式传入 `--yolo-model model/yolo_world_v2s_fp16.rknn` 时使用。
-
-## 上游来源
-
-- RKNN 示例与转换脚本：[airockchip/rknn_model_zoo](https://github.com/airockchip/rknn_model_zoo)
-- Rockchip YOLO-World 适配：[airockchip/YOLO-World](https://github.com/airockchip/YOLO-World)
-- YOLO-World 上游：[AILab-CVC/YOLO-World](https://github.com/AILab-CVC/YOLO-World)
-- Rockchip MobileSAM 适配：[airockchip/MobileSAM](https://github.com/airockchip/MobileSAM)
-- MobileSAM 上游：[ChaoningZhang/MobileSAM](https://github.com/ChaoningZhang/MobileSAM)
-
-Rockchip Model Zoo 的 `examples/yolo_world/model/download_model.sh` 与 `examples/mobilesam/model/download_model.sh` 提供对应 ONNX 下载入口。下载地址可能变化，应以当前上游仓库为准。
-
-## 使用 RKNN Model Zoo 转换
-
-以下命令针对已验证 checkout 中的实际嵌套脚本路径。转换在 x86_64 Linux/WSL 中使用 RKNN Toolkit2 完成，不在板端用 RKNNLite 转换。
-
-先设置目标仓库目录，变量名不要指向系统目录：
+列出状态：
 
 ```bash
-export RKNN_REPO_DEST=/path/to/yolo-world-mobilesam-rk3588
+python3 scripts/download_models.py --list
 ```
 
-### YOLO-World 与 CLIP Text
+下载并校验 Release 中的 MobileSAM 包：
 
 ```bash
-cd /path/to/rknn_model_zoo/examples/yolo_world/model
-bash download_model.sh
-
-cd ../python
-python3 clip_text/convert.py \
-  ../model/clip_text.onnx rk3588 fp \
-  "${RKNN_REPO_DEST}/model/clip_text_fp16.rknn"
-
-python3 yolo_world/convert.py \
-  ../model/yolo_world_v2s.onnx rk3588 i8 \
-  "${RKNN_REPO_DEST}/model/yolo_world_v2s_i8.rknn"
-
-python3 yolo_world/convert.py \
-  ../model/yolo_world_v2s.onnx rk3588 fp \
-  "${RKNN_REPO_DEST}/model/yolo_world_v2s_fp16.rknn"
+python3 scripts/download_models.py
 ```
 
-I8 转换使用 Model Zoo `examples/yolo_world/model/dataset.txt` 指定的量化数据。替换数据集可能改变精度与 hash，应记录数据来源和 Toolkit 版本。
+下载器先验证 ZIP 的大小与 SHA-256，再只提取清单中的模型，并再次验证每个 RKNN。坏文件不会被静默覆盖；确实要替换时显式使用 `--force`。
 
-CLIP Text 转换脚本只接受 `fp`；当前图固定输入为 `[1, 20]` token IDs。
+这两个文件只完成分割部分。真实动态提示词检测还需要本地生成 CLIP 和至少一个 YOLO 模型。
 
-### MobileSAM
+## 五个已验证制品
+
+| 文件 | 精度 | 字节数 | SHA-256 |
+| --- | --- | ---: | --- |
+| `clip_text_fp16.rknn` | FP16 | 129,536,946 | `872765bb5f9813d96d57888d97ab3599270264aeeead2a97e505bffbed466563` |
+| `yolo_world_v2s_i8.rknn` | I8 | 15,327,930 | `c2af5058828ff62f39910d1f84284df5644ec46c05317aec54fa5235b04fa61a` |
+| `yolo_world_v2s_fp16.rknn` | FP16 | 27,844,050 | `bc03e95b31b9bd73ce308a981e76b97b3c7cd11cdd44955671fd594477965fc7` |
+| `mobilesam_encoder_fp16.rknn` | FP16 | 38,544,118 | `d1c3104934967cc488c83471bd645fee783f2609f90f446e1dfaf77e532875d9` |
+| `mobilesam_decoder_fp16.rknn` | FP16 | 11,266,702 | `5f509ea393396ac33cb4c3805492227ca4f6b89c533dcbf6ef5a94808fd89660` |
+
+默认运行需要 CLIP、I8 YOLO、MobileSAM Encoder 和 Decoder 四个文件。FP16 YOLO 只在显式传入 `--yolo-model model/yolo_world_v2s_fp16.rknn` 时使用。
+
+`MODEL_SHA256SUMS` 适合板端 `sha256sum -c`；`MODEL_PROVENANCE.json` 还固定了 ONNX 输入、Model Zoo 版本、转换器 hash、校准输入和环境；`MODEL_RELEASES.json` 是下载器使用的机器可读发布清单。重新转换时，只要 Toolkit、图优化或量化输入变化，输出 hash 都可能不同，因此 hash 是制品身份，不是对所有有效模型的唯一白名单。
+
+## 可复现的真实转换边界
+
+本项目实际完成的是：
+
+```text
+Rockchip 提供的 4 个 ONNX
+  -> RKNN Toolkit2 2.3.2
+  -> RK3588 的 5 个 RKNN
+```
+
+项目没有执行或伪造 `.pt/.pth -> ONNX` 阶段。源 ONNX 下载入口来自固定的 RKNN Model Zoo `v2.3.2`（commit `bad6c7334531becaf90a561988519b7bec34d0ab`），下载后还会核对本次真机版本的大小和 SHA-256。
+
+在 x86_64 Ubuntu 22.04 / WSL 中准备官方 Model Zoo：
 
 ```bash
-cd /path/to/rknn_model_zoo/examples/mobilesam/model
-bash download_model.sh
-
-cd ../python
-python3 encoder/convert.py \
-  ../model/mobilesam_encoder.onnx rk3588 fp \
-  "${RKNN_REPO_DEST}/model/mobilesam_encoder_fp16.rknn"
-
-python3 decoder/convert.py \
-  ../model/mobilesam_decoder.onnx rk3588 fp \
-  "${RKNN_REPO_DEST}/model/mobilesam_decoder_fp16.rknn"
+git clone --branch v2.3.2 --depth 1 \
+  https://github.com/airockchip/rknn_model_zoo.git \
+  /path/to/rknn_model_zoo
 ```
 
-当前 MobileSAM 转换脚本只接受 `fp`。Encoder 使用 448 × 448 输入；Decoder 期望 image embeddings `[1, 256, 28, 28]`、两个 box prompt 点、112 × 112 mask input，并输出 IoU predictions 与 low-resolution masks。
+安装与授权条款相符的 `rknn-toolkit2==2.3.2` 后，从本仓库根目录执行：
 
-## 转换后的检查顺序
+```bash
+python3 conversion/download_onnx.py \
+  --output-dir model/onnx \
+  --record model/onnx/download-record.json
 
-1. 记录 RKNN Toolkit2 版本、Model Zoo 来源、ONNX hash、RKNN hash和量化数据。
-2. 把 RKNN 复制到板端 `model/`。
-3. 使用静态图片分别跑 I8 和 FP16 YOLO，视觉核对 bbox 与置信度。
-4. 开启 MobileSAM，视觉核对 mask 是否贴合目标。
-5. 运行动态目标验证，确认新提示词和缓存命中。
-6. 最后运行串行/三核基准，并检查 `all_results_consistent=true`。
+python3 conversion/convert_models.py \
+  --onnx-dir model/onnx \
+  --output-dir model \
+  --model-zoo-root /path/to/rknn_model_zoo \
+  --record model/conversion-record.json
+```
 
-只有“转换成功”或“模型能初始化”不足以证明完整链路正确。
+I8 YOLO 必须使用 `v2.3.2` 的官方 `examples/yolo_world/model/dataset.txt`、20 张 COCO 校准图和 `coco_text_outp.npy`。脚本会验证 dataset 与文本 embedding 的 hash、行数和图片存在性，不会悄悄拿任意图片代替。COCO 图片不复制到本仓库。
+
+只转换运行必需的 CLIP 与 I8 YOLO：
+
+```bash
+python3 conversion/convert_models.py \
+  --models clip_text_fp16 yolo_world_v2s_i8 \
+  --onnx-dir model/onnx \
+  --output-dir model \
+  --model-zoo-root /path/to/rknn_model_zoo
+```
+
+脚本拒绝静默覆盖。每次转换会写 JSON 记录，包含精确 RKNN API 参数、主机环境、输入输出 hash、校准依赖，以及是否与本次已上板 reference hash 一致。全部参数与离线测试见 [`conversion/README.md`](../conversion/README.md)。
+
+## 转换后的功能检查
+
+1. 运行 `sha256sum -c MODEL_SHA256SUMS`，确认使用的是哪一组制品。
+2. 分别运行 I8 与 FP16 YOLO 静态图片测试，视觉核对 bbox 和 confidence。
+3. 开启 MobileSAM，核对 mask 是否贴合 bbox 中的真实目标。
+4. 运行 `cup -> cat -> cup` 动态目标验证，确认提示词实际改变且第三次命中 embedding cache。
+5. 最后运行串行/三核基准，并检查输出一致性。
+
+“转换完成”或“模型能初始化”都不能代替真实视觉结果检查。
+
+## Release 包怎样生成
+
+维护者先把两个已核验的 MobileSAM RKNN 放在仓库外，再运行：
+
+```bash
+python3 scripts/build_model_release.py \
+  --model-dir /path/to/verified-models \
+  --output /path/to/mobilesam-rk3588-fp16-v0.1.0.zip
+```
+
+构建器先核对两个模型的大小与 hash，再生成确定性的 ZIP，内含 Apache-2.0 全文、模型许可说明、provenance、SHA256SUMS 和使用说明。模型和 ZIP 都不会误入 Git 历史。
+
+正常构建还会把最终 ZIP 的文件名、字节数和 SHA-256 与 `MODEL_RELEASES.json` 再比较，不一致即失败。只有在有意更新 provenance/notice、需要先计算新 hash 时才使用 `--candidate`；把候选值人工审核写回 manifest 后，必须再跑一次不带 `--candidate` 的严格构建，严格构建通过的文件才允许上传。
 
 ## 许可边界
 
-本仓库没有分发上述模型。YOLO-World 上游仓库标示 GPL-3.0，并说明独立商业许可；MobileSAM 使用 Apache-2.0。下载、转换、分发和商用模型前，必须检查当时的上游许可与权重条款。完整清单见 [第三方许可说明](../THIRD_PARTY_NOTICES.md)。
+仓库原创代码使用 Apache-2.0，并不自动改变模型权重、Toolkit、Runtime 或训练数据条款。v0.1.0 的分发决定记录在 [`MODEL_LICENSES.md`](../MODEL_LICENSES.md)；完整第三方清单见 [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md)。这是一份工程合规记录，不替代法律意见。

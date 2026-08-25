@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-08-25",
+  "conversion_scope": "Rockchip-provided ONNX to RKNN; this record does not claim a PyTorch-to-ONNX export",
+  "target_platform": "rk3588",
+  "environment": {
+    "os": "Ubuntu 22.04 x86_64 under WSL",
+    "python": "3.10.12",
+    "rknn_toolkit2": "2.3.2",
+    "onnx": "1.14.1",
+    "numpy": "1.26.4",
+    "torch": "2.4.0+cpu",
+    "protobuf": "4.25.4",
+    "opencv_python": "4.8.1.78"
+  },
+  "upstream": {
+    "rknn_model_zoo": {
+      "repository": "https://github.com/airockchip/rknn_model_zoo",
+      "tag": "v2.3.2",
+      "commit": "bad6c7334531becaf90a561988519b7bec34d0ab"
+    },
+    "mobilesam": {
+      "repository": "https://github.com/ChaoningZhang/MobileSAM",
+      "commit": "c12dd83cbe26dffdcc6a0f9e7be2f6fb024df0ed",
+      "rockchip_repository": "https://github.com/airockchip/MobileSAM",
+      "rockchip_commit": "e6aceeb93a08d75c39dbca073266d8447290f330",
+      "license_evidence": {
+        "upstream_checkpoint": "https://github.com/ChaoningZhang/MobileSAM/blob/c12dd83cbe26dffdcc6a0f9e7be2f6fb024df0ed/weights/mobile_sam.pt",
+        "upstream_license": "https://github.com/ChaoningZhang/MobileSAM/blob/c12dd83cbe26dffdcc6a0f9e7be2f6fb024df0ed/LICENSE",
+        "rockchip_export_changes": "https://github.com/airockchip/MobileSAM/blob/e6aceeb93a08d75c39dbca073266d8447290f330/RKNN_README_EN.md",
+        "model_zoo_example": "https://github.com/airockchip/rknn_model_zoo/tree/bad6c7334531becaf90a561988519b7bec34d0ab/examples/mobilesam"
+      }
+    },
+    "yolo_world": {
+      "repository": "https://github.com/AILab-CVC/YOLO-World",
+      "commit": "b4fd87838d7f53adc0dbf5844313b92d9e3124c7",
+      "rockchip_repository": "https://github.com/airockchip/YOLO-World",
+      "rockchip_commit": "b8b0fe9beffa9564306a798f6e443c9fe88057af"
+    },
+    "clip": {
+      "repository": "https://github.com/openai/CLIP",
+      "commit": "d05afc436d78f1c48dc0dbf8e5980a9d471f35f6",
+      "model_card": "https://huggingface.co/openai/clip-vit-base-patch32/blob/3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268/README.md"
+    },
+    "converter_sha256": {
+      "examples/yolo_world/python/clip_text/convert.py": "d2923b3c6ee1c5636aadb475acae4180ad1c01c8e5c842bb72dbdeb8cc82bbbc",
+      "examples/yolo_world/python/yolo_world/convert.py": "023133c8bff863fab08b097b0e77d8cce5edda2978bcd846a6c113769f0963ca",
+      "examples/mobilesam/python/encoder/convert.py": "ee41e355ee21cb508d949daddc0ef4b712eddecbece0080b0446e10160b4225d",
+      "examples/mobilesam/python/decoder/convert.py": "8e8a64f752c58f5b127f60aa7e833a71a650c21c0dba54b0e91012f987cbd478"
+    }
+  },
+  "inputs": {
+    "clip_text.onnx": {
+      "bytes": 254185587,
+      "sha256": "9cd686c57d874b4f7ec8e539fecc9ac2367c4252be18d662cd7bd23e872fddee",
+      "source_example": "examples/yolo_world/model/download_model.sh",
+      "source_url": "https://ftrg.zbox.filez.com/v2/delivery/data/95f00b0fc900458ba134f8b180b3f7a1/examples/clip/clip_text.onnx"
+    },
+    "yolo_world_v2s.onnx": {
+      "bytes": 51068366,
+      "sha256": "5c057c5c8c9354a261a4e2d217abc8b8a50bcbac738623f3e914fc942941cd8c",
+      "source_example": "examples/yolo_world/model/download_model.sh",
+      "source_url": "https://ftrg.zbox.filez.com/v2/delivery/data/95f00b0fc900458ba134f8b180b3f7a1/examples/yolo_world/yolo_world_v2s.onnx"
+    },
+    "mobilesam_encoder.onnx": {
+      "bytes": 27931848,
+      "sha256": "09ad167250443d5cd9d94ee4e46ab4c5163e97e9bfbaf1834039862307242489",
+      "source_example": "examples/mobilesam/model/download_model.sh",
+      "source_url": "https://ftrg.zbox.filez.com/v2/delivery/data/95f00b0fc900458ba134f8b180b3f7a1/examples/mobilesam/mobilesam_encoder_tiny.onnx"
+    },
+    "mobilesam_decoder.onnx": {
+      "bytes": 16483151,
+      "sha256": "56671c3f7f1efdf7a64d97d9db3883388a5a37ee3dd986f5411e0c0e249694ed",
+      "source_example": "examples/mobilesam/model/download_model.sh",
+      "source_url": "https://ftrg.zbox.filez.com/v2/delivery/data/95f00b0fc900458ba134f8b180b3f7a1/examples/mobilesam/mobilesam_decoder.onnx"
+    }
+  },
+  "calibration": {
+    "dataset": "RKNN Model Zoo v2.3.2 examples/yolo_world/model/dataset.txt",
+    "dataset_sha256": "1b568c09557d06ef6e0f50787b534eb866a95305e9c26d5713c7050dc60b488c",
+    "text_embeddings": "examples/yolo_world/model/coco_text_outp.npy",
+    "text_embeddings_sha256": "e603be500f346dc04f5fd99808a7ac8fe1e31ad248b74c03482bbc4087ace1c2",
+    "image_count": 20,
+    "image_sha256_manifest": "conversion/convert_models.py:OFFICIAL_COCO_IMAGE_SHA256",
+    "image_sha256_manifest_digest": "27ab9e13c941ec86ccf776256c695464ec0d481b0fd2155a2c1d6a8f952221f9",
+    "images_redistributed": false
+  },
+  "outputs": {
+    "clip_text_fp16.rknn": {
+      "bytes": 129536946,
+      "sha256": "872765bb5f9813d96d57888d97ab3599270264aeeead2a97e505bffbed466563"
+    },
+    "yolo_world_v2s_i8.rknn": {
+      "bytes": 15327930,
+      "sha256": "c2af5058828ff62f39910d1f84284df5644ec46c05317aec54fa5235b04fa61a"
+    },
+    "yolo_world_v2s_fp16.rknn": {
+      "bytes": 27844050,
+      "sha256": "bc03e95b31b9bd73ce308a981e76b97b3c7cd11cdd44955671fd594477965fc7"
+    },
+    "mobilesam_encoder_fp16.rknn": {
+      "bytes": 38544118,
+      "sha256": "d1c3104934967cc488c83471bd645fee783f2609f90f446e1dfaf77e532875d9"
+    },
+    "mobilesam_decoder_fp16.rknn": {
+      "bytes": 11266702,
+      "sha256": "5f509ea393396ac33cb4c3805492227ca4f6b89c533dcbf6ef5a94808fd89660"
+    }
+  },
+  "modifications": {
+    "date": "2026-08-25",
+    "description": "Compiled the identified ONNX graphs to RKNN FP16 or I8 artifacts for RK3588 with RKNN Toolkit2 2.3.2. The YOLO I8 build used the identified 20-image calibration list and text embedding input. No training or PyTorch-to-ONNX export was performed by this project."
+  },
+  "board_verification": {
+    "rknn_toolkit_lite2": "2.3.2",
+    "rknpu_driver": "0.9.8",
+    "artifact_hashes_match_conversion_host": true,
+    "functional_evidence": "benchmarks/lubancat4_rk3588_2026-08-25.json"
+  }
+}

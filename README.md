@@ -14,7 +14,8 @@
 - YOLO-World bbox 到 MobileSAM mask：显示检测框、置信度、半透明 mask 和主轮廓。
 - 三核 NPU：同一帧的 YOLO 与 MobileSAM Encoder 并行，Decoder 在 bbox 产生后执行。
 - 静态图片验证、动态换词验证、串行/三核基准测试。
-- 27 项不依赖 RKNN 硬件的单元测试，以及 GitHub Actions 和发布内容扫描。
+- 不依赖 RKNN 硬件的主机单元测试、GitHub Actions、模型清单校验和发布内容扫描。
+- 可复现的 ONNX → RKNN 转换工具，以及带 SHA-256、来源和许可记录的模型 Release 流程。
 
 ![Runtime target-prompt pipeline](docs/assets/pipeline-overview.svg)
 
@@ -34,7 +35,13 @@
 
 ## 最快开始：SSH 网页界面
 
-仓库不包含模型。先按 [模型说明](docs/MODELS.md) 把五个 `.rknn` 文件放进板端仓库的 `model/`；默认运行只需要其中四个，FP16 YOLO 用于精度对照。
+普通 Git 历史不塞入大模型。GitHub Release 提供许可证明确的 MobileSAM 两个 RKNN；先下载并自动校验：
+
+```bash
+python3 scripts/download_models.py
+```
+
+完整动态检测还需要 `clip_text_fp16.rknn` 和 `yolo_world_v2s_i8.rknn`，它们因上游权重许可边界不作为本 Release 二进制附件，使用 [`conversion/`](conversion/README.md) 从官方 ONNX 在本地生成。`yolo_world_v2s_fp16.rknn` 只用于精度对照。五个已上板制品的来源、大小与 hash 都已记录在 [模型说明](docs/MODELS.md)，不是空文件名或示例占位符。
 
 Windows PowerShell 中执行：
 
@@ -123,12 +130,15 @@ Encoder 与 YOLO 在同一帧并行；Decoder 依赖 YOLO bbox，所以只能在
 ```text
 .
 ├── python/                    # 板端运行程序与单元测试
+├── conversion/                # 官方 ONNX 下载、校验与统一 RKNN 转换
 ├── tests/tokenizer/           # Rockchip C++ tokenizer 对照实现
-├── model/                     # 仅说明文件；RKNN 模型被 Git 忽略
+├── model/                     # 本地模型目录；二进制被普通 Git 忽略
 ├── data/                      # 仅说明文件；测试图片不进入仓库
 ├── benchmarks/                # 脱敏后的真机基准 JSON
 ├── docs/                      # 架构、部署、CLI、模型和性能文档
-├── scripts/check_release.py   # 大文件、模型、私有路径和链接扫描
+├── MODEL_PROVENANCE.json      # ONNX、转换器、环境与 RKNN 哈希证据
+├── MODEL_RELEASES.json        # Release 资产和本地转换边界
+├── scripts/                   # 下载、打包和发布内容检查
 └── .github/workflows/         # x86 主机侧 CI
 ```
 
@@ -153,11 +163,12 @@ python3 scripts/check_release.py
 - [命令行与 HTTP 接口](docs/CLI_REFERENCE.md)
 - [模型、转换与校验值](docs/MODELS.md)
 - [真机性能与复现方法](docs/BENCHMARKS.md)
+- [v0.1.0 发布说明](docs/releases/v0.1.0.md)
 - [贡献指南](CONTRIBUTING.md)
 - [第三方许可说明](THIRD_PARTY_NOTICES.md)
 
 ## 来源与许可
 
-本仓库的 RKNN 推理结构直接基于 [Rockchip RKNN Model Zoo](https://github.com/airockchip/rknn_model_zoo) 中的 YOLO-World 和 MobileSAM 示例扩展，仓库源代码按 [Apache License 2.0](LICENSE) 发布。动态检测模型来自 [YOLO-World](https://github.com/AILab-CVC/YOLO-World)，分割模型来自 [MobileSAM](https://github.com/ChaoningZhang/MobileSAM)，tokenizer 行为和 BPE 词表来自 [OpenAI CLIP](https://github.com/openai/CLIP)。
+本仓库的 RKNN 推理结构直接基于 [Rockchip RKNN Model Zoo](https://github.com/airockchip/rknn_model_zoo) 中的 YOLO-World 和 MobileSAM 示例扩展，原创仓库源代码按 [Apache License 2.0](LICENSE) 发布。动态检测模型来自 [YOLO-World](https://github.com/AILab-CVC/YOLO-World)，分割模型来自 [MobileSAM](https://github.com/ChaoningZhang/MobileSAM)，tokenizer 行为和 BPE 词表来自 [OpenAI CLIP](https://github.com/openai/CLIP)。
 
-模型、权重、RKNN Runtime 和厂商二进制均不包含在本仓库中，也不因本仓库的 Apache-2.0 自动获得同一许可。尤其 YOLO-World 上游使用 GPL-3.0，并提供独立商业许可渠道；分发或商用前请自行检查当前上游条款。详见 [第三方许可说明](THIRD_PARTY_NOTICES.md)。
+模型、权重、RKNN Runtime 和厂商二进制不会因为本仓库的 Apache-2.0 自动获得同一许可。`v0.1.0` 只把两个 MobileSAM RKNN 放入带 Apache 许可证与 provenance 的 Release 包；YOLO 和 CLIP RKNN 只记录已验证哈希并提供本地转换流程。详见 [模型制品许可](MODEL_LICENSES.md) 与 [第三方许可说明](THIRD_PARTY_NOTICES.md)。
