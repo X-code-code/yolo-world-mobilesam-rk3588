@@ -1,6 +1,6 @@
 # YOLO-World + MobileSAM on RK3588
 
-![readme-hero](E:\workspace\yolo-world-mobilesam-rk3588\docs\assets\readme-hero.png)
+![YOLO-World 与 MobileSAM 在 RK3588 上的实时检测分割效果](docs/assets/readme-hero.png)
 
 在 RK3588 / 鲁班猫 4 上，用运行时文本提示完成 `目标名称 -> bbox -> mask` 的实时定位。项目常驻加载 CLIP Text、YOLO-World V2-S 和 MobileSAM 四个 RKNN 模型；修改提示词时无需重启或重载模型，并利用三核 NPU 并行提高完整检测与分割链路的帧率。
 
